@@ -1,0 +1,68 @@
+#include "mod_img.as"
+dim x
+dim y
+
+screen 0,1000,500
+objsize 150,65
+
+pos 850,0:button"色の選択",*color_change
+pos 850,65:button"ペン",*pen_on
+pos 850,130:button"消しゴム",*eraser_on
+pos 850,195:button"スポイト",*spoit_on
+
+objsize 150,120
+pos 850,260:button"保存",*save
+pos 850,380:button"読込",*load
+pen=1
+
+*main
+gsel 0
+stick key,256
+if (key & 256):{
+	if pen=1:color r,g,b:line x,y,mousex,mousey
+	if era=1:color 255,255,255:boxf mousex-3,mousey-3,mousex+3,mousey+3
+	if spo=1:pget mousex,mousey:r=ginfo_r:g=ginfo_g:b=ginfo_b:spo=0:pen=1
+}
+if pen=1:title"ペイント1.0   Mode=ペン 色：("+r+","+g+","+b+")"
+if era=1:title"ペイント1.0   Mode=消しゴム"
+if spo=1:pget mousex,mousey:title"ペイント1.0   Mode=スポイト　色:("+ginfo_r+","+ginfo_g+","+ginfo_b+")"
+x=mousex
+y=mousey
+await 1
+goto *main
+
+*color_change
+dialog"",33:r=ginfo_r:g=ginfo_g:b=ginfo_b
+goto *main
+
+*pen_on
+pen=1
+era=0
+spo=0
+goto *main
+
+*eraser_on
+pen=0
+era=1
+spo=0
+goto *main
+
+*spoit_on
+pen=0
+era=0
+spo=1
+goto *main
+
+*save
+dialog"bmp",17
+if stat=0:goto *main	
+bmpsave refstr+".bmp"
+mouse x,y
+goto *main
+
+*load
+dialog,16
+if stat=0:goto *main
+imgload refstr
+mouse x,y
+goto *main
